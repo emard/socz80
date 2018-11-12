@@ -64,6 +64,8 @@ begin
         clk_b      => video_clk,
         we_b       => '0',
         addr_b     => video_address(10 downto 0),
-        data_out_b => video_data_out
+        data_out_b => video_data_out(7 downto 0)
     );
+
+    video_data_out(8) <= '0';
 end;

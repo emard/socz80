@@ -46,18 +46,18 @@ begin
         dual_port => true,
         pass_thru_a => false,
         data_width => 8,
-        addr_width => 11
+        addr_width => 13
     )
     port map (
         clk_a      => cpu_clk,
         we_a       => S_ram_we,
-        addr_a     => cpu_address(12 downto 2),
+        addr_a     => cpu_address,
         data_in_a  => cpu_data_in,
         data_out_a => cpu_data_out,
 
         clk_b      => video_clk,
         we_b       => '0',
-        addr_b     => video_address(12 downto 2),
+        addr_b     => video_address,
         data_out_b => video_data_out
     );
 end;

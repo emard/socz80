@@ -13,5 +13,10 @@ end;
 
 architecture Behavioral of FontRom7 is
 begin
-    data <= addr(7 downto 0);
+    video_font_rom: entity work.FontRom
+    port map (
+        clk        => clk,
+        addr       => addr(10 downto 0),
+        data       => data
+    );
 end;

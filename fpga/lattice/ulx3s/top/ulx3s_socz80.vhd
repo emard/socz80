@@ -10,12 +10,15 @@ use IEEE.NUMERIC_STD.ALL;
 library ecp5u;
 use ecp5u.components.all;
 
+use work.video_mode_pack.all;
+
 entity ulx3s_socz80 is
   generic
   (
     -- video parameters common for vgahdmi and vgatext
     C_dvid_ddr: boolean := true; -- generate HDMI with DDR
-    C_video_mode: integer := 1 -- 0:640x360, 1:640x480, 2:800x480, 3:800x600, 5:1024x768
+    C_test_picture: boolean := false; -- false: normal, true: show video test picture
+    C_video_mode: integer := 5 -- 0:640x360, 1:640x480, 2:800x480, 3:800x600, 5:1024x768
   );
   port
   (
@@ -240,6 +243,17 @@ begin
       CLKOS3      =>  open             --  83.333 MHz
     );
     clk <= clk_pixel_shift; -- CPU clock 125 MHz
+  end generate;
+
+  ddr_1024x768_62MHz: if (C_video_mode=5) generate
+  clk_62M: entity work.clk_25_312_62_125
+    port map
+    (
+      CLKI        =>  clk_25MHz,
+      CLKOP       =>  clk_pixel_shift, -- 312.5 MHz
+      CLKOS       =>  clk_pixel,       --  62.5 MHz
+      CLKOS2      =>  clk              -- 125   MHz
+    );
   end generate;
 
   G_no_passthru_autodetect: if true generate
@@ -638,9 +652,28 @@ begin
    --            mux_pins => mux_pins
    --);
 
-   -- VGA graphics engine
-   TextEngine: entity work.TextEngine7
+   -- An attempt to allow the CPU clock to be scaled back to run
+   -- at slower speeds without affecting the clock signal sent to
+   -- IO devices. Basically this was an attempt to make CP/M games
+   -- playable :) Very limited success. Might be simpler to remove
+   -- this entirely.
+   clkscale: entity work.clkscale
    port map (
+               clk => clk,
+               reset => system_reset,
+               cpu_address => virtual_address(2 downto 0),
+               data_in => cpu_data_out,
+               data_out => clkscale_out,
+               enable => clkscale_cs,
+               read_notwrite => req_read,
+               clk_enable => turbo_clk
+           );
+
+  G_not_test_picture:
+  if not C_test_picture generate
+    -- VGA graphics engine
+    TextEngine: entity work.TextEngine7
+    port map (
                clk => clk,
                reset => system_reset,
                cpu_address => virtual_address(2 downto 0),
@@ -663,10 +696,10 @@ begin
               video_clock => pixel_vclock,
               video_data => pixel_data,
               video_address => pixel_address
-   );
+    );
 
-   VideoVGA:entity work.VideoVGA
-   port map (
+    VideoVGA:entity work.VideoVGA
+    port map (
                clk => clk,
                reset => system_reset,
                vsync => vsync,
@@ -679,40 +712,33 @@ begin
                scan_col => pixel_col,
                scan_row => pixel_row,
                scan_data => pixel
-	);
+    );
 
-   -- An attempt to allow the CPU clock to be scaled back to run
-   -- at slower speeds without affecting the clock signal sent to
-   -- IO devices. Basically this was an attempt to make CP/M games
-   -- playable :) Very limited success. Might be simpler to remove
-   -- this entirely.
-   clkscale: entity work.clkscale
-   port map (
-               clk => clk,
-               reset => system_reset,
-               cpu_address => virtual_address(2 downto 0),
-               data_in => cpu_data_out,
-               data_out => clkscale_out,
-               enable => clkscale_cs,
-               read_notwrite => req_read,
-               clk_enable => turbo_clk
-           );
+    S_vga_r(2 downto 0) <= rgb8(7 downto 5);
+    S_vga_g(2 downto 0) <= rgb8(4 downto 2);
+    -- S_vga_b(2 downto 1) <= rgb8(1 downto 0);
+    S_vga_b(2 downto 1) <= "01";
+    S_vga_hsync <= hsync;
+    S_vga_vsync <= vsync;
+    S_vga_blank <= blank;
+  end generate;
 
-  --S_vga_r(2 downto 0) <= rgb8(7 downto 5);
-  --S_vga_g(2 downto 0) <= rgb8(4 downto 2);
-  --S_vga_b(2 downto 1) <= rgb8(1 downto 0);
-  --S_vga_hsync
-  --S_vga_vsync
-  --S_vga_blank
-
-  vga_test_picture: entity work.vga
-  generic map
-  (
-      C_resolution_x   => 640,
-      C_resolution_y   => 480
-  )
-  port map
-  (
+  G_yes_test_picture:
+  if C_test_picture generate
+    vga_test_picture: entity work.vga
+    generic map
+    (
+      C_resolution_x => C_video_modes(C_video_mode).visible_width,
+      C_hsync_front_porch => C_video_modes(C_video_mode).h_front_porch,
+      C_hsync_pulse => C_video_modes(C_video_mode).h_sync_pulse,
+      C_hsync_back_porch => C_video_modes(C_video_mode).h_back_porch,
+      C_resolution_y => C_video_modes(C_video_mode).visible_height,
+      C_vsync_front_porch => C_video_modes(C_video_mode).v_front_porch,
+      C_vsync_pulse => C_video_modes(C_video_mode).v_sync_pulse,
+      C_vsync_back_porch => C_video_modes(C_video_mode).v_back_porch
+    )
+    port map
+    (
       clk_pixel => clk_pixel, -- 25 MHz
       test_picture => '1', -- show test picture
       red_byte => (others => '0'),
@@ -724,14 +750,15 @@ begin
       vga_hsync => S_vgatest_hsync,
       vga_vsync => S_vgatest_vsync,
       vga_blank => S_vgatest_blank
-  );
+    );
 
-  S_vga_r(2 downto 0) <= S_vgatest_r(7 downto 5);
-  S_vga_g(2 downto 0) <= S_vgatest_g(7 downto 5);
-  S_vga_b(2 downto 0) <= S_vgatest_b(7 downto 5);
-  S_vga_hsync <= S_vgatest_hsync;
-  S_vga_vsync <= S_vgatest_vsync;
-  S_vga_blank <= S_vgatest_blank;
+    S_vga_r(2 downto 0) <= S_vgatest_r(7 downto 5);
+    S_vga_g(2 downto 0) <= S_vgatest_g(7 downto 5);
+    S_vga_b(2 downto 0) <= S_vgatest_b(7 downto 5);
+    S_vga_hsync <= S_vgatest_hsync;
+    S_vga_vsync <= S_vgatest_vsync;
+    S_vga_blank <= S_vgatest_blank;
+  end generate;
 
   vga2dvi_converter: entity work.vga2dvid
   generic map

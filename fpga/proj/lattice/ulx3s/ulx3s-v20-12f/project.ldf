@@ -9,6 +9,9 @@
         <Source name="../../../../lattice/ulx3s/clocks/clk_25_125_250_25_83.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
+        <Source name="../../../../lattice/ulx3s/clocks/clk_25_312_62_125.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
         <Source name="../../../../lattice/chip/ecp5u/ecp5_flash_clk.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
@@ -90,7 +93,7 @@
         <Source name="../../../../VideoMem.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../../../../VideoVGA.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../../../../emard/VideoVGA.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
         <Source name="../../../../DummyVideo.vhd" type="VHDL" type_short="VHDL">
@@ -105,10 +108,22 @@
         <Source name="../../../../TextMem.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../../../../TextVideo7.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../../../../emard/TextVideo7.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
         <Source name="../../../../emard/FontRom7.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../../../../emard/vga/vga.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../../../../emard/vga/hdmi/vga2dvid.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../../../../emard/vga/hdmi/tmds_encoder.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../../../../emard/vga/hdmi/video_mode_pack.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
         <Source name="../../constraints/ulx3s_v20_flash.lpf" type="Logic Preference" type_short="LPF">

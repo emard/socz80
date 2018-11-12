@@ -51,21 +51,21 @@ begin
     generic map (
         dual_port => true,
         pass_thru_a => false,
-        data_width => 8,
+        data_width => 9,
         addr_width => 11
     )
     port map (
         clk_a      => cpu_clk,
         we_a       => S_ram_we,
         addr_a     => cpu_address(10 downto 0),
-        data_in_a  => cpu_data_in,
-        data_out_a => cpu_data_out,
+        data_in_a(8) => cpu_address(11),
+        data_in_a(7 downto 0) => cpu_data_in,
+        data_out_a(7 downto 0) => cpu_data_out,
 
         clk_b      => video_clk,
         we_b       => '0',
         addr_b     => video_address(10 downto 0),
-        data_out_b => video_data_out(7 downto 0)
+        data_out_b => video_data_out
     );
 
-    video_data_out(8) <= '0';
 end;

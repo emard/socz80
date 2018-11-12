@@ -1,0 +1,29 @@
+Changes versus Will's original SocZ80
+
+- Removed UART1   (mistake - should put it back)
+- Added joystick interfaces
+- Added audio one bit control
+- Re-routed second SPI to the ADC (should add a new SPI instead)
+- Added seven segment display driver
+- Added text mode video
+- Added video RAM
+- Prototype pieces for a turdo switch (like a turbo but backwards)
+
+
+Memory Map Changes
+
+0x201xxxx routes to the Video RAM (dual ported BRAM)
+
+undefined I/O generates 0xFF not ROM contents
+
+0x80-0x87 - Seven segment display
+	     0x80 reads 1  - LogicStart Megawing
+             0x81..0x83 are the segments as 8bit masks
+
+0xD8-0xDF - Video (see manual)
+
+0xE8-0xEF - I/O device glue
+0xE8      - bit 0 is the speaker line, music is a software problem
+0xEC      - Joystick 0
+0xED      - Joystick 1 (n/c)
+0xEE      - Joystick 2 (n/c)

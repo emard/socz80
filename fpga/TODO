@@ -1,0 +1,26 @@
+- Video Interfaces
+   - pass a 12bit pixel stream out ready for better VGA outputs
+
+- TextVGA
+   - do we care enough to implement a 3 entry LUT compatible with the
+     pixel engine
+   - User defined graphics ?
+
+- GPIO
+   - register to make switches toggle, level trigger or latched on
+     other boards (make it report back mode set so we can report
+     toggle always on Logic board)
+
+- VideoMem
+   - Use the existing SSRAM slot for text display ?
+
+- Put back 2nd UART always (just wire it to nowhere)
+
+- Might be sensible to have a third SPI for the ADC to avoid confusing
+  other code
+
+- Can we make the TX and RX share the same address as in and out on SPI. It
+  would hugely clean up the software
+
+
+

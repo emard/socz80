@@ -1,7 +1,8 @@
 # SocZ80
 
-This is attempt to rework SOCZ80 (Alan Cox edition)
-by replacing vendor-specific primitives (mainly PLL and RAM)
+This is attempt to rework 
+of [Alan Cox SocZ80](http://zeniv.linux.org.uk/~alan/SocZ80/) by 
+replacing vendor-specific primitives (mainly PLL and RAM)
 into generics.
 
 Currently it compiles for Lattice ECP5.

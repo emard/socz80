@@ -201,7 +201,12 @@ architecture Behavioral of ulx3s_socz80 is
     signal vga_reset            : std_logic;
     signal vsync		: std_logic;
     signal hsync		: std_logic;
+    signal blank		: std_logic;
     signal rgb8                 : std_logic_vector(7 downto 0);
+    signal S_vga_r, S_vga_g, S_vga_b : std_logic_vector(2 downto 0);
+    signal S_vga_vsync, S_vga_hsync, S_vga_blank : std_logic;
+    signal S_vgatest_r, S_vgatest_g, S_vgatest_b : std_logic_vector(7 downto 0);
+    signal S_vgatest_vsync, S_vgatest_hsync, S_vgatest_blank : std_logic;
 
      -- Video RAM
     signal pixel_data           : std_logic_vector(8 downto 0);
@@ -666,6 +671,7 @@ begin
                reset => system_reset,
                vsync => vsync,
                hsync => hsync,
+               videoblank => blank,
                rgb8 => rgb8,
                scan_reset => vga_reset,
                scan_clk => pixel_clock,
@@ -691,6 +697,67 @@ begin
                read_notwrite => req_read,
                clk_enable => turbo_clk
            );
+
+  --S_vga_r(2 downto 0) <= rgb8(7 downto 5);
+  --S_vga_g(2 downto 0) <= rgb8(4 downto 2);
+  --S_vga_b(2 downto 1) <= rgb8(1 downto 0);
+  --S_vga_hsync
+  --S_vga_vsync
+  --S_vga_blank
+
+  vga_test_picture: entity work.vga
+  generic map
+  (
+      C_resolution_x   => 640,
+      C_resolution_y   => 480
+  )
+  port map
+  (
+      clk_pixel => clk_pixel, -- 25 MHz
+      test_picture => '1', -- show test picture
+      red_byte => (others => '0'),
+      green_byte => (others => '0'),
+      blue_byte => (others => '0'),
+      vga_r => S_vgatest_r,
+      vga_g => S_vgatest_g,
+      vga_b => S_vgatest_b,
+      vga_hsync => S_vgatest_hsync,
+      vga_vsync => S_vgatest_vsync,
+      vga_blank => S_vgatest_blank
+  );
+
+  S_vga_r(2 downto 0) <= S_vgatest_r(7 downto 5);
+  S_vga_g(2 downto 0) <= S_vgatest_g(7 downto 5);
+  S_vga_b(2 downto 0) <= S_vgatest_b(7 downto 5);
+  S_vga_hsync <= S_vgatest_hsync;
+  S_vga_vsync <= S_vgatest_vsync;
+  S_vga_blank <= S_vgatest_blank;
+
+  vga2dvi_converter: entity work.vga2dvid
+  generic map
+  (
+      C_ddr     => C_dvid_ddr,
+      C_depth   => 3 -- 3bpp (3 bit per pixel)
+  )
+  port map
+  (
+      clk_pixel => clk_pixel, -- 25 MHz
+      clk_shift => clk_pixel_shift, -- 5*25 MHz
+
+      in_red   => S_vga_r,
+      in_green => S_vga_g,
+      in_blue  => S_vga_b,
+
+      in_hsync => S_vga_hsync,
+      in_vsync => S_vga_vsync,
+      in_blank => S_vga_blank,
+
+      -- single-ended output ready for differential buffers
+      out_clock => dvid_crgb(7 downto 6),
+      out_red   => dvid_crgb(5 downto 4),
+      out_green => dvid_crgb(3 downto 2),
+      out_blue  => dvid_crgb(1 downto 0)
+  );
 
   G_dvid_sdr: if not C_dvid_ddr generate
     -- this module instantiates single ended inverters to simulate differential

@@ -8,4 +8,6 @@ into generics.
 Currently it compiles for Lattice ECP5.
 It's untested and not very likely to work yet.
 
-
+I didn't know there's a
+newer [retro80](https://bitbucket.org/thornschuh/retro80/src) version
+of the same...

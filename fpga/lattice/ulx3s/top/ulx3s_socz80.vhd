@@ -716,8 +716,8 @@ begin
 
     S_vga_r(2 downto 0) <= rgb8(7 downto 5);
     S_vga_g(2 downto 0) <= rgb8(4 downto 2);
-    -- S_vga_b(2 downto 1) <= rgb8(1 downto 0);
-    S_vga_b(2 downto 1) <= "01";
+    S_vga_b(2 downto 1) <= rgb8(1 downto 0);
+    -- S_vga_b(2 downto 1) <= "01";
     S_vga_hsync <= hsync;
     S_vga_vsync <= vsync;
     S_vga_blank <= blank;

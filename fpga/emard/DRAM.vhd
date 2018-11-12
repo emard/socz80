@@ -390,7 +390,7 @@ begin
     cachetag_memory_sram: entity work.bram_true2p_1clk
     generic map (
         dual_port => false,
-        pass_thru_a => true,
+        pass_thru_a => false,
         data_width => 9,
         addr_width => 12
     )

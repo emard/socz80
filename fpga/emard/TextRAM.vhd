@@ -60,6 +60,7 @@ begin
         addr_a     => cpu_address(10 downto 0),
         data_in_a(8) => cpu_address(11),
         data_in_a(7 downto 0) => cpu_data_in,
+        data_out_a(8) => open,
         data_out_a(7 downto 0) => cpu_data_out,
 
         clk_b      => video_clk,
